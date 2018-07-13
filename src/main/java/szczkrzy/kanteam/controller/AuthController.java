@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import szczkrzy.kanteam.model.request.LoginRequest;
 import szczkrzy.kanteam.model.request.SignupRequest;
+import szczkrzy.kanteam.model.response.AuthResponse;
 import szczkrzy.kanteam.service.UserService;
 
 @RestController
@@ -30,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
 
         return userService.login(loginRequest);
     }

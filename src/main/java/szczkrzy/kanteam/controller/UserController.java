@@ -7,7 +7,7 @@ import szczkrzy.kanteam.model.entity.KanTeamUser;
 import szczkrzy.kanteam.service.UserService;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -20,13 +20,11 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable int id) {
-
         return userService.getById(id);
     }
 
     @GetMapping
     public ResponseEntity<?> getAll() {
-
         return userService.getAll();
     }
 
