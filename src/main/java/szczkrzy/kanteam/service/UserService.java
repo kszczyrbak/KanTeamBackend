@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import szczkrzy.kanteam.model.entity.KanTeamUser;
+import szczkrzy.kanteam.model.entity.KTUser;
 import szczkrzy.kanteam.model.request.LoginRequest;
 import szczkrzy.kanteam.model.request.SignupRequest;
 import szczkrzy.kanteam.model.response.AuthResponse;
@@ -39,14 +39,14 @@ public class UserService {
 
     public ResponseEntity<?> register(SignupRequest signupRequest) {
         signupRequest.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-        KanTeamUser kanTeamUser = new KanTeamUser(signupRequest);
+        KTUser KTUser = new KTUser(signupRequest);
 
-        kanTeamUser = userRepository.save(kanTeamUser);
-        return new ResponseEntity<>(kanTeamUser, HttpStatus.CREATED);
+        KTUser = userRepository.save(KTUser);
+        return new ResponseEntity<>(KTUser, HttpStatus.CREATED);
     }
 
     public ResponseEntity getById(int id) {
-        Optional<KanTeamUser> user = userRepository.findById(id);
+        Optional<KTUser> user = userRepository.findById(id);
         if (!user.isPresent())
             return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(user);
@@ -60,7 +60,7 @@ public class UserService {
                 )
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        final KanTeamUser user = userRepository.findByEmail(loginRequest.getLogin());
+        final KTUser user = userRepository.findByEmail(loginRequest.getLogin());
         final String token = tokenService.generateToken(new SecurityUserModel(user));
         return ResponseEntity.ok(new AuthResponse(user.getId(), token));
     }
@@ -70,14 +70,14 @@ public class UserService {
         return ResponseEntity.ok(userRepository.findAll());
     }
 
-    public ResponseEntity<?> update(KanTeamUser user) {
-        KanTeamUser existingUser = userRepository.findByEmail(user.getEmail());
+    public ResponseEntity<?> update(KTUser user) {
+        KTUser existingUser = userRepository.findByEmail(user.getEmail());
         user.setPassword(existingUser.getPassword());
-        KanTeamUser newUser = userRepository.save(user);
+        KTUser newUser = userRepository.save(user);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
-    public ResponseEntity remove(KanTeamUser user) {
+    public ResponseEntity remove(KTUser user) {
         try {
             userRepository.delete(user);
         } catch (EmptyResultDataAccessException e) {

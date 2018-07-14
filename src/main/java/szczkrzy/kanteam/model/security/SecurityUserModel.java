@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
-import szczkrzy.kanteam.model.entity.KanTeamUser;
+import szczkrzy.kanteam.model.entity.KTUser;
 
 import java.util.Collection;
 
@@ -18,9 +18,9 @@ public class SecurityUserModel implements UserDetails {
     private String login;
     private String password;
 
-    public SecurityUserModel(KanTeamUser kanTeamUser) {
-        this.login = kanTeamUser.getEmail();
-        this.password = kanTeamUser.getPassword();
+    public SecurityUserModel(KTUser KTUser) {
+        this.login = KTUser.getEmail();
+        this.password = KTUser.getPassword();
     }
 
     @Override

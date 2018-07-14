@@ -7,22 +7,21 @@ import szczkrzy.kanteam.model.request.SignupRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class KanTeamUser {
-
-    public KanTeamUser(SignupRequest signupRequest) {
-        email = signupRequest.getEmail();
-        password = signupRequest.getPassword();
-        fullName = signupRequest.getFullName();
-    }
+public class KTUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "user_id")
     private int id;
+    @ManyToMany(cascade = CascadeType.ALL,
+            mappedBy = "members")
+    private List<KTTeam> teams;
 
     @NotNull
     @Column(unique = true)
@@ -35,4 +34,10 @@ public class KanTeamUser {
     @NotNull
     @Column
     private String fullName;
+
+    public KTUser(SignupRequest signupRequest) {
+        email = signupRequest.getEmail();
+        password = signupRequest.getPassword();
+        fullName = signupRequest.getFullName();
+    }
 }

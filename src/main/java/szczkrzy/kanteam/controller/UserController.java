@@ -3,7 +3,7 @@ package szczkrzy.kanteam.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import szczkrzy.kanteam.model.entity.KanTeamUser;
+import szczkrzy.kanteam.model.entity.KTUser;
 import szczkrzy.kanteam.service.UserService;
 
 @RestController
@@ -29,12 +29,12 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity update(@RequestBody KanTeamUser user) {
+    public ResponseEntity update(@RequestBody KTUser user) {
         return userService.update(user);
     }
 
     @DeleteMapping
-    public ResponseEntity delete(@RequestBody KanTeamUser user) {
+    public ResponseEntity delete(@RequestBody KTUser user) {
         return userService.remove(user);
     }
 
