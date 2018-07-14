@@ -1,4 +1,4 @@
-package szczkrzy.kanteam.resource;
+package szczkrzy.kanteam.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

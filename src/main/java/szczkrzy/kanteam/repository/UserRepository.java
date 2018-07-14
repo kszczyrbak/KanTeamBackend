@@ -1,20 +1,26 @@
 package szczkrzy.kanteam.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import szczkrzy.kanteam.model.entity.KanTeamUser;
+import org.springframework.stereotype.Repository;
+import szczkrzy.kanteam.model.entity.KTUser;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<KanTeamUser, Integer> {
+@Repository
+public interface UserRepository extends JpaRepository<KTUser, Integer> {
 
-    List<KanTeamUser> findAll();
+    List<KTUser> findAll();
 
-    Optional<KanTeamUser> findById(Integer integer);
+    Optional<KTUser> findById(Integer integer);
 
     long count();
 
     void deleteById(Integer integer);
 
-    void delete(KanTeamUser kanTeamUser);
+    void delete(KTUser user);
+
+    KTUser findByEmail(String login);
+
+
 }
