@@ -1,4 +1,4 @@
-package szczkrzy.KanTeamBackend;
+package szczkrzy.kanteam;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

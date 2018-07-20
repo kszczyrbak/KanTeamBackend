@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${HEROKU_DB_URL}
+    username: ${HEROKU_DB_USERNAME}
+    password: ${HEROKU_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    platform: postgresql
+  jpa:
+    hibernate:
+      ddl-auto: update

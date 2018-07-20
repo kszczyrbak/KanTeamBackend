@@ -1,4 +1,4 @@
-package szczkrzy.KanTeamBackend;
+package szczkrzy.kanteam;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
