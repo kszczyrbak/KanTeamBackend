@@ -6,7 +6,7 @@
     <groupId>szczkrzy</groupId>
     <artifactId>KanTeamBackend</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>KanTeamBackend</name>
     <description>Demo project for Spring Boot</description>
