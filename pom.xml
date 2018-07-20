@@ -144,11 +144,16 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.2.2</version>
+                <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>szczkrzy.kanteam.KanTeamBackendApplication</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
+                <version>3.1.0</version>
             </plugin>
         </plugins>
     </build>
