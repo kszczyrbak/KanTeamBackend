@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,25 +15,23 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class KTTeam {
+public class KTColumn {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "team_id")
+    @Column(name = "column_id")
     private int id;
 
     @NotNull
-    @Column(unique = true)
+    @Column
     private String name;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "team_users",
-            joinColumns = {@JoinColumn(name = "team_id")},
-            inverseJoinColumns = {@JoinColumn(name = "user_id")})
-    @JsonIgnore
-    private List<KTUser> members;
+    @OneToMany(mappedBy = "column")
+    private List<KTTask> tasks;
 
+    @JoinColumn(name = "board_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne
     @JsonIgnore
-    @OneToMany(mappedBy = "team")
-    private List<KTBoard> boards;
+    private KTBoard board;
 }

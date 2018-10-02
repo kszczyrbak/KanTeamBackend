@@ -1,5 +1,6 @@
 package szczkrzy.kanteam.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,8 @@ public class KTUser {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
     private int id;
+
+
     @ManyToMany(cascade = CascadeType.ALL,
             mappedBy = "members")
     private List<KTTeam> teams;
@@ -34,6 +37,11 @@ public class KTUser {
     @NotNull
     @Column
     private String fullName;
+
+    @ManyToMany(cascade = CascadeType.ALL,
+            mappedBy = "users")
+    @JsonIgnore
+    private List<KTBoard> boards;
 
     public KTUser(SignupRequest signupRequest) {
         email = signupRequest.getEmail();

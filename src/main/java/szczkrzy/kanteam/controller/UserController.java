@@ -28,6 +28,16 @@ public class UserController {
         return userService.getAll();
     }
 
+    @GetMapping("{id}/boards")
+    public ResponseEntity<?> getUserBoards(@PathVariable int id) {
+        return userService.getUserBoards(id);
+    }
+
+    @GetMapping("{id}/teams")
+    public ResponseEntity<?> getUserTeams(@PathVariable int id) {
+        return userService.getUserTeams(id);
+    }
+
     @PutMapping
     public ResponseEntity update(@RequestBody KTUser user) {
         return userService.update(user);

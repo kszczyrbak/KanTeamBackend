@@ -1,5 +1,6 @@
 package szczkrzy.kanteam.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,36 +10,40 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class KTBoard {
+public class KTTask {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "board_id")
+    @Column(name = "task_id")
     private int id;
 
     @NotNull
-    @Column(unique = true)
+    @Column
     private String name;
 
-    @JoinColumn(name = "team_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @ManyToOne
-    private KTTeam team;
+    @Column
+    private String description;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "board_users",
-            joinColumns = {@JoinColumn(name = "board_id")},
+    @JoinTable(name = "task_users",
+            joinColumns = {@JoinColumn(name = "task_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
-    @JsonIgnore
     private List<KTUser> users;
 
+    @JoinColumn(name = "column_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne
     @JsonIgnore
-    @OneToMany(mappedBy = "board")
-    private List<KTColumn> columns;
+    private KTColumn column;
+
+    @Column
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Date date;
 }

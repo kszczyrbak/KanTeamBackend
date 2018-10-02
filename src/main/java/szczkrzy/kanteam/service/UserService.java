@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import szczkrzy.kanteam.model.entity.KTBoard;
+import szczkrzy.kanteam.model.entity.KTTeam;
 import szczkrzy.kanteam.model.entity.KTUser;
 import szczkrzy.kanteam.model.request.LoginRequest;
 import szczkrzy.kanteam.model.request.SignupRequest;
@@ -18,6 +20,7 @@ import szczkrzy.kanteam.model.security.SecurityUserModel;
 import szczkrzy.kanteam.repository.UserRepository;
 import szczkrzy.kanteam.security.JwtTokenService;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -93,5 +96,28 @@ public class UserService {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
+    }
+
+    public ResponseEntity<?> getUserBoards(int id) {
+        Optional<KTUser> possibleUser = userRepository.findById(id);
+        if (!possibleUser.isPresent())
+            return ResponseEntity.badRequest().build();
+        else {
+            KTUser user = possibleUser.get();
+            List<KTBoard> boards = user.getBoards();
+            user.getTeams().forEach(team -> boards.addAll(team.getBoards()));
+            return ResponseEntity.ok(boards);
+        }
+    }
+
+    public ResponseEntity<?> getUserTeams(int id) {
+        Optional<KTUser> possibleUser = userRepository.findById(id);
+        if (!possibleUser.isPresent())
+            return ResponseEntity.badRequest().build();
+        else {
+            KTUser user = possibleUser.get();
+            List<KTTeam> teams = user.getTeams();
+            return ResponseEntity.ok(teams);
+        }
     }
 }

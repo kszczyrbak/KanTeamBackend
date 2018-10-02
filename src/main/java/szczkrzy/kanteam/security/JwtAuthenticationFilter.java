@@ -40,11 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.warn("the token is expired and not valid anymore", e);
             }
         } else {
-            logger.warn("couldn't find bearer string, will ignore the header");
+            response.sendError(403);
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            logger.debug("security context was null, so authorizating user");
+            logger.debug("security context was null, so authorizing user");
 
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
