@@ -6,36 +6,36 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import szczkrzy.kanteam.model.request.CommentCreateRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class KTColumn {
+public class KTComment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "column_id")
+    @Column(name = "comment_id")
     private int id;
-
     @NotNull
     @Column
-    private String name;
-
-    @OneToMany(mappedBy = "column")
-    private List<KTTask> tasks;
-
-    @JoinColumn(name = "board_id")
+    private String comment;
+    @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne
+    @NotNull
+    private KTUser user;
+    @JoinColumn(name = "task_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne
     @JsonIgnore
-    private KTBoard board;
+    private KTTask task;
 
-    @Column(name = "col_order")
-    @Basic
-    private int order;
+    public KTComment(CommentCreateRequest commentRequest) {
+        comment = commentRequest.getComment();
+    }
 }

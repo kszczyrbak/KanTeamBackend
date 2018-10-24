@@ -1,15 +1,19 @@
-package szczkrzy.kanteam.service;
+package szczkrzy.kanteam.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import szczkrzy.kanteam.model.entity.KTBoard;
 import szczkrzy.kanteam.model.entity.KTTeam;
 import szczkrzy.kanteam.model.entity.KTUser;
-import szczkrzy.kanteam.repository.TeamRepository;
-import szczkrzy.kanteam.repository.UserRepository;
+import szczkrzy.kanteam.model.request.TeamCreateRequest;
+import szczkrzy.kanteam.repositories.TeamRepository;
+import szczkrzy.kanteam.repositories.UserRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,10 +29,10 @@ public class TeamService {
     }
 
     public ResponseEntity getById(int id) {
-        Optional<KTTeam> board = teamRepository.findById(id);
-        if (!board.isPresent())
+        Optional<KTTeam> team = teamRepository.findById(id);
+        if (!team.isPresent())
             return ResponseEntity.badRequest().build();
-        return ResponseEntity.ok(board);
+        return ResponseEntity.ok(team);
     }
 
     public ResponseEntity getAll() {
@@ -36,8 +40,8 @@ public class TeamService {
     }
 
     public ResponseEntity<?> update(KTTeam team) {
-        KTTeam newBoard = teamRepository.save(team);
-        return new ResponseEntity<>(newBoard, HttpStatus.CREATED);
+        KTTeam newTeam = teamRepository.save(team);
+        return new ResponseEntity<>(newTeam, HttpStatus.CREATED);
     }
 
     public ResponseEntity remove(KTTeam team) {
@@ -58,9 +62,17 @@ public class TeamService {
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<?> create(KTTeam team) {
-        KTTeam newTeam = teamRepository.save(team);
-        return new ResponseEntity<>(newTeam, HttpStatus.CREATED);
+    public ResponseEntity<?> create(TeamCreateRequest requestBody) {
+        Optional<KTUser> possibleUser = userRepository.findById(requestBody.getOwnerId());
+        if (!possibleUser.isPresent())
+            return ResponseEntity.badRequest().build();
+        KTTeam newTeam = new KTTeam();
+        newTeam.setName(requestBody.getName());
+        List<KTUser> members = new ArrayList<>();
+        members.add(possibleUser.get());
+        newTeam.setMembers(members);
+        KTTeam createdTeam = teamRepository.save(newTeam);
+        return new ResponseEntity<>(createdTeam, HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> addUser(int id, int userId) {
@@ -74,10 +86,18 @@ public class TeamService {
                 return ResponseEntity.badRequest().build();
             else {
                 team.getMembers().add(possibleUser.get());
-                teamRepository.save(team);
-                return ResponseEntity.ok().build();
+                KTTeam updatedTeam = teamRepository.save(team);
+                return new ResponseEntity<>(updatedTeam, HttpStatus.CREATED);
             }
 
         }
+    }
+
+    public ResponseEntity<?> getBoardsById(int id) {
+        Optional<KTTeam> team = teamRepository.findById(id);
+        if (!team.isPresent())
+            return ResponseEntity.badRequest().build();
+        List<KTBoard> boards = team.get().getBoards();
+        return ResponseEntity.ok(boards);
     }
 }

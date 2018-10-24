@@ -1,6 +1,7 @@
-package szczkrzy.kanteam.repository;
+package szczkrzy.kanteam.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import szczkrzy.kanteam.model.entity.KTUser;
 
@@ -21,6 +22,9 @@ public interface UserRepository extends JpaRepository<KTUser, Integer> {
     void delete(KTUser user);
 
     KTUser findByEmail(String login);
+
+    @Query("select u from KTUser u where u.fullName like ?1%")
+    List<KTUser> findByFullName(String name);
 
 
 }

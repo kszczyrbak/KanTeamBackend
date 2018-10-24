@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.warn("the token is expired and not valid anymore", e);
             }
         } else {
-            response.sendError(403);
+//            response.sendError(403);
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

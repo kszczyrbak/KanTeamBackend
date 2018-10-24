@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import szczkrzy.kanteam.model.request.LoginRequest;
 import szczkrzy.kanteam.model.request.SignupRequest;
 import szczkrzy.kanteam.model.response.AuthResponse;
-import szczkrzy.kanteam.service.UserService;
+import szczkrzy.kanteam.services.UserService;
 
 @RestController
 @RequestMapping("/auth")

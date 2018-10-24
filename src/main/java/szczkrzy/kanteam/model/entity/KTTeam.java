@@ -28,7 +28,6 @@ public class KTTeam {
     @JoinTable(name = "team_users",
             joinColumns = {@JoinColumn(name = "team_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
-    @JsonIgnore
     private List<KTUser> members;
 
     @JsonIgnore

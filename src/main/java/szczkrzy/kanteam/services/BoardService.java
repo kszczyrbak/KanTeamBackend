@@ -1,19 +1,13 @@
-package szczkrzy.kanteam.service;
+package szczkrzy.kanteam.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import szczkrzy.kanteam.model.entity.KTBoard;
-import szczkrzy.kanteam.model.entity.KTColumn;
-import szczkrzy.kanteam.model.entity.KTTeam;
-import szczkrzy.kanteam.model.entity.KTUser;
+import szczkrzy.kanteam.model.entity.*;
 import szczkrzy.kanteam.model.request.BoardCreateRequest;
-import szczkrzy.kanteam.repository.BoardRepository;
-import szczkrzy.kanteam.repository.ColumnRepository;
-import szczkrzy.kanteam.repository.TeamRepository;
-import szczkrzy.kanteam.repository.UserRepository;
+import szczkrzy.kanteam.repositories.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +20,15 @@ public class BoardService {
     private final UserRepository userRepository;
     private final TeamRepository teamRepository;
     private final ColumnRepository columnRepository;
+    private final TaskRepository taskRepository;
 
     @Autowired
-    public BoardService(BoardRepository boardRepository, UserRepository userRepository, TeamRepository teamRepository, ColumnRepository columnRepository) {
+    public BoardService(BoardRepository boardRepository, UserRepository userRepository, TeamRepository teamRepository, ColumnRepository columnRepository, TaskRepository taskRepository) {
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
         this.columnRepository = columnRepository;
+        this.taskRepository = taskRepository;
     }
 
     public ResponseEntity getById(int id) {
@@ -115,8 +111,14 @@ public class BoardService {
     }
 
     public ResponseEntity<?> getMembersById(int id) {
-        Optional<KTBoard> board = boardRepository.findById(id);
-        return board.<ResponseEntity<?>>map(ktBoard -> ResponseEntity.ok(ktBoard.getUsers())).orElse(ResponseEntity.badRequest().build());
+        Optional<KTBoard> possibleBoard = boardRepository.findById(id);
+        if (!possibleBoard.isPresent())
+            return ResponseEntity.badRequest().build();
+        KTBoard board = possibleBoard.get();
+        List<KTUser> members = board.getUsers();
+        if (board.getTeam() != null)
+            members.addAll(board.getTeam().getMembers());
+        return ResponseEntity.ok(members);
     }
 
     public ResponseEntity addColumn(int id, KTColumn column) {
@@ -128,5 +130,31 @@ public class BoardService {
 
         KTColumn newColumn = columnRepository.save(column);
         return new ResponseEntity<>(newColumn, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity updateColumns(int id, List<KTColumn> columns) {
+        Optional<KTBoard> possibleBoard = boardRepository.findById(id);
+        if (!possibleBoard.isPresent())
+            return ResponseEntity.badRequest().build();
+        KTBoard board = possibleBoard.get();
+        for (KTColumn column : columns) {
+            column.setBoard(board);
+            columnRepository.save(column);
+        }
+        return ResponseEntity.ok(200);
+    }
+
+    public ResponseEntity addTask(int boardId, int colId, KTTask task) {
+        Optional<KTBoard> possibleBoard = boardRepository.findById(boardId);
+        if (!possibleBoard.isPresent())
+            return ResponseEntity.badRequest().build();
+        Optional<KTColumn> possibleColumn = columnRepository.findById(colId);
+        if (!possibleColumn.isPresent())
+            return ResponseEntity.badRequest().build();
+        KTColumn column = possibleColumn.get();
+        task.setColumn(column);
+
+        KTTask newTask = taskRepository.save(task);
+        return new ResponseEntity<>(newTask, HttpStatus.CREATED);
     }
 }

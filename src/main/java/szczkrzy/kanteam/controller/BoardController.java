@@ -5,8 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import szczkrzy.kanteam.model.entity.KTBoard;
 import szczkrzy.kanteam.model.entity.KTColumn;
+import szczkrzy.kanteam.model.entity.KTTask;
 import szczkrzy.kanteam.model.request.BoardCreateRequest;
-import szczkrzy.kanteam.service.BoardService;
+import szczkrzy.kanteam.services.BoardService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/boards")
@@ -60,9 +63,21 @@ public class BoardController {
     }
 
     @CrossOrigin("http://localhost:4200")
-    @PutMapping("/{id}/columns")
+    @PutMapping("/{id}/columns/add")
     public ResponseEntity addColumn(@PathVariable int id, @RequestBody KTColumn column) {
         return boardService.addColumn(id, column);
+    }
+
+    @CrossOrigin("http://localhost:4200")
+    @PutMapping("/{id}/columns")
+    public ResponseEntity updateColumns(@PathVariable int id, @RequestBody List<KTColumn> columns) {
+        return boardService.updateColumns(id, columns);
+    }
+
+    @CrossOrigin("http://localhost:4200")
+    @PutMapping("/{id}/columns/{colId}/tasks/add")
+    public ResponseEntity addTask(@PathVariable int id, @PathVariable int colId, @RequestBody KTTask task) {
+        return boardService.addTask(id, colId, task);
     }
 
     @GetMapping("/{id}/members")

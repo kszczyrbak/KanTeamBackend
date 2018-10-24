@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import szczkrzy.kanteam.model.entity.KTTeam;
-import szczkrzy.kanteam.service.TeamService;
+import szczkrzy.kanteam.model.request.TeamCreateRequest;
+import szczkrzy.kanteam.services.TeamService;
 
 @RestController
+@CrossOrigin("http://localhost:4200")
 @RequestMapping("/api/teams")
 public class TeamController {
 
@@ -23,13 +25,13 @@ public class TeamController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody KTTeam team) {
-        return teamService.create(team);
+    public ResponseEntity<?> create(@RequestBody TeamCreateRequest request) {
+        return teamService.create(request);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> addUser(@RequestParam int userId, @PathVariable int id) {
-        return teamService.addUser(id, userId);
+    @PutMapping("/{id}/members/add")
+    public ResponseEntity<?> addUser(@RequestBody int user, @PathVariable int id) {
+        return teamService.addUser(id, user);
     }
 
     @GetMapping
@@ -50,5 +52,10 @@ public class TeamController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteById(@PathVariable int id) {
         return teamService.removeByid(id);
+    }
+
+    @GetMapping("/{id}/boards")
+    public ResponseEntity<?> getBoards(@PathVariable int id) {
+        return teamService.getBoardsById(id);
     }
 }

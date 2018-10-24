@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import szczkrzy.kanteam.model.entity.KTTask;
-import szczkrzy.kanteam.service.TaskService;
+import szczkrzy.kanteam.model.request.CommentCreateRequest;
+import szczkrzy.kanteam.services.TaskService;
 
 @RestController
+@CrossOrigin("http://localhost:4200")
 @RequestMapping("/api/tasks")
 public class TaskController {
 
@@ -37,9 +39,20 @@ public class TaskController {
         return taskService.update(task);
     }
 
-    @PutMapping("/{id}/users")
+
+    @PutMapping("/{id}/users/add")
     public ResponseEntity addUser(@PathVariable int id, @RequestBody int userId) {
         return taskService.addUser(id, userId);
+    }
+
+    @PutMapping("/{id}/users/remove")
+    public ResponseEntity removeUser(@PathVariable int id, @RequestBody int userId) {
+        return taskService.removeUser(id, userId);
+    }
+
+    @PutMapping("/{id}/comments/add")
+    public ResponseEntity addComment(@PathVariable int id, @RequestBody CommentCreateRequest comment) {
+        return taskService.addComment(id, comment);
     }
 
     @GetMapping("/{id}/users")

@@ -1,4 +1,4 @@
-package szczkrzy.kanteam.service;
+package szczkrzy.kanteam.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import szczkrzy.kanteam.model.entity.KTBoard;
 import szczkrzy.kanteam.model.entity.KTTeam;
 import szczkrzy.kanteam.model.entity.KTUser;
@@ -17,9 +18,10 @@ import szczkrzy.kanteam.model.request.LoginRequest;
 import szczkrzy.kanteam.model.request.SignupRequest;
 import szczkrzy.kanteam.model.response.AuthResponse;
 import szczkrzy.kanteam.model.security.SecurityUserModel;
-import szczkrzy.kanteam.repository.UserRepository;
+import szczkrzy.kanteam.repositories.UserRepository;
 import szczkrzy.kanteam.security.JwtTokenService;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,6 +120,40 @@ public class UserService {
             KTUser user = possibleUser.get();
             List<KTTeam> teams = user.getTeams();
             return ResponseEntity.ok(teams);
+        }
+    }
+
+    public ResponseEntity saveUserPhoto(int id, MultipartFile file) {
+        System.out.println(file);
+        Optional<KTUser> possibleUser = userRepository.findById(id);
+        if (!possibleUser.isPresent())
+            return ResponseEntity.badRequest().build();
+        KTUser user = possibleUser.get();
+        try {
+            user.setPhoto(file.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+        KTUser newUser = userRepository.save(user);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<?> getUsersByName(String name) {
+
+        return ResponseEntity.ok(userRepository.findByFullName(name));
+    }
+
+    public ResponseEntity<byte[]> getPhoto(int id) {
+        Optional<KTUser> possibleUser = userRepository.findById(id);
+        if (!possibleUser.isPresent())
+            return ResponseEntity.badRequest().build();
+        else {
+            KTUser user = possibleUser.get();
+            if (user.getPhoto() == null)
+                return ResponseEntity.badRequest().build();
+            byte[] photo = user.getPhoto();
+            return ResponseEntity.ok(photo);
         }
     }
 }

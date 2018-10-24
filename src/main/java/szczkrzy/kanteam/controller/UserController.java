@@ -3,11 +3,13 @@ package szczkrzy.kanteam.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import szczkrzy.kanteam.model.entity.KTUser;
-import szczkrzy.kanteam.service.UserService;
+import szczkrzy.kanteam.services.UserService;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin("http://localhost:4200")
 public class UserController {
 
     private final UserService userService;
@@ -52,4 +54,20 @@ public class UserController {
     public ResponseEntity deleteById(@PathVariable int id) {
         return userService.removeByid(id);
     }
+
+    @PostMapping("/{id}/photo")
+    public ResponseEntity uploadPhoto(@PathVariable int id, @RequestParam("file") MultipartFile file) {
+        return userService.saveUserPhoto(id, file);
+    }
+
+    @GetMapping("/{id}/photo")
+    public ResponseEntity getPhoto(@PathVariable int id) {
+        return userService.getPhoto(id);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> getUsersByName(@RequestParam("name") String name) {
+        return userService.getUsersByName(name);
+    }
+
 }

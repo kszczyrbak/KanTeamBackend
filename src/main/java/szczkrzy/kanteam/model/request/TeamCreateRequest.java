@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class SignupRequest {
+public class TeamCreateRequest {
 
-    private String email;
-    private String password;
-    private String fullName;
+    private int ownerId;
+    private String name;
 }

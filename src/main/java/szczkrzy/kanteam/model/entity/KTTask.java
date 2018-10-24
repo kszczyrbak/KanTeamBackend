@@ -43,6 +43,9 @@ public class KTTask {
     @JsonIgnore
     private KTColumn column;
 
+    @OneToMany(mappedBy = "task")
+    private List<KTComment> comments;
+
     @Column
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Date date;

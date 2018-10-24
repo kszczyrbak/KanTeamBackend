@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import szczkrzy.kanteam.security.AuthenticationErrorHandler;
 import szczkrzy.kanteam.security.JwtAuthenticationFilter;
 import szczkrzy.kanteam.security.JwtTokenService;
-import szczkrzy.kanteam.service.SecurityDetailsService;
+import szczkrzy.kanteam.services.SecurityDetailsService;
 
 @Configuration
 public class BeanConfig implements WebMvcConfigurer {

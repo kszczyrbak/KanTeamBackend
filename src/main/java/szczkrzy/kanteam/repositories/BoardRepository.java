@@ -1,4 +1,4 @@
-package szczkrzy.kanteam.repository;
+package szczkrzy.kanteam.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

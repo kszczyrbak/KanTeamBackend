@@ -24,6 +24,7 @@ public class KTUser {
 
     @ManyToMany(cascade = CascadeType.ALL,
             mappedBy = "members")
+    @JsonIgnore
     private List<KTTeam> teams;
 
     @NotNull
@@ -42,6 +43,15 @@ public class KTUser {
             mappedBy = "users")
     @JsonIgnore
     private List<KTBoard> boards;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<KTComment> comments;
+
+    @Column
+    @Basic(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private byte[] photo;
 
     public KTUser(SignupRequest signupRequest) {
         email = signupRequest.getEmail();
