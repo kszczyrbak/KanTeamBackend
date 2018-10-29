@@ -49,4 +49,8 @@ public class KTTask {
     @Column
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Date date;
+
+    @Column(name = "task_order")
+    @Basic
+    private int order;
 }

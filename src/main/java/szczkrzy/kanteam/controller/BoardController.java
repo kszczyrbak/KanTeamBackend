@@ -12,6 +12,8 @@ import szczkrzy.kanteam.services.BoardService;
 import java.util.List;
 
 @RestController
+
+@CrossOrigin("http://localhost:4200")
 @RequestMapping("/api/boards")
 public class BoardController {
 
@@ -62,19 +64,21 @@ public class BoardController {
         return boardService.getTasksById(id);
     }
 
-    @CrossOrigin("http://localhost:4200")
     @PutMapping("/{id}/columns/add")
     public ResponseEntity addColumn(@PathVariable int id, @RequestBody KTColumn column) {
         return boardService.addColumn(id, column);
     }
 
-    @CrossOrigin("http://localhost:4200")
     @PutMapping("/{id}/columns")
     public ResponseEntity updateColumns(@PathVariable int id, @RequestBody List<KTColumn> columns) {
         return boardService.updateColumns(id, columns);
     }
 
-    @CrossOrigin("http://localhost:4200")
+    @PutMapping("/{id}/columns/{colId}/tasks")
+    public ResponseEntity updateColumnTasks(@PathVariable int colId, @RequestBody List<KTTask> tasks) {
+        return boardService.updateColumnTasks(colId, tasks);
+    }
+
     @PutMapping("/{id}/columns/{colId}/tasks/add")
     public ResponseEntity addTask(@PathVariable int id, @PathVariable int colId, @RequestBody KTTask task) {
         return boardService.addTask(id, colId, task);

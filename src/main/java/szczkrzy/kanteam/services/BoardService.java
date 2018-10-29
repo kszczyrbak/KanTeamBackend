@@ -144,6 +144,18 @@ public class BoardService {
         return ResponseEntity.ok(200);
     }
 
+    public ResponseEntity updateColumnTasks(int id, List<KTTask> tasks) {
+        Optional<KTColumn> possibleColumn = columnRepository.findById(id);
+        if (!possibleColumn.isPresent())
+            return ResponseEntity.badRequest().build();
+        KTColumn column = possibleColumn.get();
+        for (KTTask task : tasks) {
+            task.setColumn(column);
+            taskRepository.save(task);
+        }
+        return ResponseEntity.ok(200);
+    }
+
     public ResponseEntity addTask(int boardId, int colId, KTTask task) {
         Optional<KTBoard> possibleBoard = boardRepository.findById(boardId);
         if (!possibleBoard.isPresent())

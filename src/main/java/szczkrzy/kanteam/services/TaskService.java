@@ -9,6 +9,7 @@ import szczkrzy.kanteam.model.entity.KTComment;
 import szczkrzy.kanteam.model.entity.KTTask;
 import szczkrzy.kanteam.model.entity.KTUser;
 import szczkrzy.kanteam.model.request.CommentCreateRequest;
+import szczkrzy.kanteam.repositories.ColumnRepository;
 import szczkrzy.kanteam.repositories.CommentRepository;
 import szczkrzy.kanteam.repositories.TaskRepository;
 import szczkrzy.kanteam.repositories.UserRepository;
@@ -23,12 +24,14 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final ColumnRepository columnRepository;
 
     @Autowired
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository, CommentRepository commentRepository) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, CommentRepository commentRepository, ColumnRepository columnRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.columnRepository = columnRepository;
     }
 
     public ResponseEntity getById(int id) {
