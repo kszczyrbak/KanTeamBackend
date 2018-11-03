@@ -8,7 +8,6 @@ import szczkrzy.kanteam.model.request.TeamCreateRequest;
 import szczkrzy.kanteam.services.TeamService;
 
 @RestController
-@CrossOrigin("http://localhost:4200")
 @RequestMapping("/api/teams")
 public class TeamController {
 

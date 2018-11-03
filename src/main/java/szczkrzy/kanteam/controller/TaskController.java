@@ -8,7 +8,6 @@ import szczkrzy.kanteam.model.request.CommentCreateRequest;
 import szczkrzy.kanteam.services.TaskService;
 
 @RestController
-@CrossOrigin("http://localhost:4200")
 @RequestMapping("/api/tasks")
 public class TaskController {
 

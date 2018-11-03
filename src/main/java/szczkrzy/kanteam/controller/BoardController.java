@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 
-@CrossOrigin("http://localhost:4200")
 @RequestMapping("/api/boards")
 public class BoardController {
 
