@@ -1,0 +1,15 @@
+package szczkrzy.kanteam.model.enums;
+
+public enum NotificationType {
+    TASK_COMMENT_ADDED,
+    TASK_SUBTASK_CHANGED,
+    TASK_SUBTASK_FINISHED,
+    TASK_UPDATED,
+    BOARD_USER_INVITED,
+    BOARD_TASK_CREATED,
+    BOARD_TASK_MOVED,
+    TEAM_USER_INVITED,
+    TEAM_BOARD_CREATED,
+    USER_TEAM_INVITE,
+    USER_BOARD_INVITE
+}

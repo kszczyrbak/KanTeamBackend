@@ -1,4 +1,4 @@
-package szczkrzy.kanteam.model.request;
+package szczkrzy.kanteam.model.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class LoginRequest {
+public class CommentCreateRequest {
 
-    private String login;
-    private String password;
+    private int userId;
+    private String comment;
 }

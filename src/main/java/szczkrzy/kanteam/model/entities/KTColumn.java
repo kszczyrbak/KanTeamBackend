@@ -1,4 +1,4 @@
-package szczkrzy.kanteam.model.entity;
+package szczkrzy.kanteam.model.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -9,28 +9,33 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class KTBoard {
+public class KTColumn {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "board_id")
+    @Column(name = "column_id")
     private int id;
 
     @NotNull
-    @Column(unique = true)
+    @Column
     private String name;
 
-    @NotNull
-    @JoinColumn(name = "team_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    @ManyToOne
-    private KTTeam team;
+    @OneToMany(mappedBy = "column")
+    private List<KTTask> tasks;
 
-//    private List<KTUser> members;
+    @JoinColumn(name = "board_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToOne
+    @JsonIgnore
+    private KTBoard board;
+
+    @Column(name = "col_order")
+    @Basic
+    private int order;
 }

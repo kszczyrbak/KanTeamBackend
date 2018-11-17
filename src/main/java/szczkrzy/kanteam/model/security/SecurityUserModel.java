@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
-import szczkrzy.kanteam.model.entity.KTUser;
+import szczkrzy.kanteam.model.entities.KTUser;
 
 import java.util.Collection;
 
