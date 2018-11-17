@@ -3,8 +3,8 @@ package szczkrzy.kanteam.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import szczkrzy.kanteam.model.entity.KTTask;
-import szczkrzy.kanteam.model.request.CommentCreateRequest;
+import szczkrzy.kanteam.model.entities.KTTask;
+import szczkrzy.kanteam.model.requests.CommentCreateRequest;
 import szczkrzy.kanteam.services.TaskService;
 
 @RestController
@@ -38,6 +38,10 @@ public class TaskController {
         return taskService.update(task);
     }
 
+    @GetMapping("/priorities")
+    public ResponseEntity getPriorities(){
+        return taskService.getPriorities();
+    }
 
     @PutMapping("/{id}/users/add")
     public ResponseEntity addUser(@PathVariable int id, @RequestBody int userId) {

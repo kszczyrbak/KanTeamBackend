@@ -5,33 +5,35 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import szczkrzy.kanteam.model.entity.KTBoard;
-import szczkrzy.kanteam.model.entity.KTTeam;
-import szczkrzy.kanteam.model.entity.KTUser;
-import szczkrzy.kanteam.model.request.TeamCreateRequest;
+import szczkrzy.kanteam.model.entities.KTBoard;
+import szczkrzy.kanteam.model.entities.KTNotification;
+import szczkrzy.kanteam.model.entities.KTTeam;
+import szczkrzy.kanteam.model.entities.KTUser;
+import szczkrzy.kanteam.model.enums.NotificationType;
+import szczkrzy.kanteam.model.requests.TeamCreateRequest;
 import szczkrzy.kanteam.repositories.TeamRepository;
 import szczkrzy.kanteam.repositories.UserRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TeamService {
 
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Autowired
-    public TeamService(TeamRepository teamRepository, UserRepository userRepository) {
+    public TeamService(TeamRepository teamRepository, UserRepository userRepository, NotificationService notificationService) {
         this.teamRepository = teamRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     public ResponseEntity getById(int id) {
-        Optional<KTTeam> team = teamRepository.findById(id);
-        if (!team.isPresent())
-            return ResponseEntity.badRequest().build();
+        KTTeam team = teamRepository.findById(id).get();
         return ResponseEntity.ok(team);
     }
 
@@ -50,6 +52,7 @@ public class TeamService {
         } catch (EmptyResultDataAccessException e) {
             return ResponseEntity.badRequest().build();
         }
+
         return ResponseEntity.ok().build();
     }
 
@@ -59,45 +62,43 @@ public class TeamService {
         } catch (EmptyResultDataAccessException e) {
             return ResponseEntity.badRequest().build();
         }
+
         return ResponseEntity.ok().build();
     }
 
     public ResponseEntity<?> create(TeamCreateRequest requestBody) {
-        Optional<KTUser> possibleUser = userRepository.findById(requestBody.getOwnerId());
-        if (!possibleUser.isPresent())
-            return ResponseEntity.badRequest().build();
+        KTUser user = userRepository.findById(requestBody.getOwnerId()).get();
         KTTeam newTeam = new KTTeam();
         newTeam.setName(requestBody.getName());
         List<KTUser> members = new ArrayList<>();
-        members.add(possibleUser.get());
+        members.add(user);
         newTeam.setMembers(members);
         KTTeam createdTeam = teamRepository.save(newTeam);
+
         return new ResponseEntity<>(createdTeam, HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> addUser(int id, int userId) {
-        Optional<KTTeam> possibleTeam = teamRepository.findById(id);
-        if (!possibleTeam.isPresent())
-            return ResponseEntity.badRequest().build();
-        else {
-            KTTeam team = possibleTeam.get();
-            Optional<KTUser> possibleUser = userRepository.findById(userId);
-            if (!possibleUser.isPresent())
-                return ResponseEntity.badRequest().build();
-            else {
-                team.getMembers().add(possibleUser.get());
-                KTTeam updatedTeam = teamRepository.save(team);
-                return new ResponseEntity<>(updatedTeam, HttpStatus.CREATED);
-            }
+        KTTeam team = teamRepository.findById(id).get();
+        KTUser user = userRepository.findById(userId).get();
+        team.getMembers().add(user);
+        KTTeam updatedTeam = teamRepository.save(team);
 
-        }
+        KTNotification notification1 = notificationService.createNotificationObject(NotificationType.TEAM_USER_INVITED, user, team);
+        notification1.setRecipients(team.getMembers());
+        notificationService.send(notification1);
+
+        KTNotification notification2 = notificationService.createNotificationObject(NotificationType.USER_TEAM_INVITE, team);
+        notification2.setRecipients(Collections.singletonList(user));
+        notificationService.send(notification2);
+
+        return new ResponseEntity<>(updatedTeam, HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> getBoardsById(int id) {
-        Optional<KTTeam> team = teamRepository.findById(id);
-        if (!team.isPresent())
-            return ResponseEntity.badRequest().build();
-        List<KTBoard> boards = team.get().getBoards();
+        KTTeam team = teamRepository.findById(id).get();
+        List<KTBoard> boards = team.getBoards();
+
         return ResponseEntity.ok(boards);
     }
 }

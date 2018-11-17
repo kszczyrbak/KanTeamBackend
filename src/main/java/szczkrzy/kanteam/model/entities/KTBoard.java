@@ -1,4 +1,4 @@
-package szczkrzy.kanteam.model.entity;
+package szczkrzy.kanteam.model.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -6,16 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import szczkrzy.kanteam.model.notification.NotificationSubject;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class KTBoard {
+public class KTBoard implements NotificationSubject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -41,4 +43,19 @@ public class KTBoard {
     @JsonIgnore
     @OneToMany(mappedBy = "board")
     private List<KTColumn> columns;
+
+    @Override
+    @JsonIgnore
+    public String getNotificationTextRepresentation() {
+        return name;
+    }
+
+    public void addUser(KTUser user) {
+        if (users == null) {
+            users = new ArrayList<>();
+            users.add(user);
+        } else {
+            users.add(user);
+        }
+    }
 }

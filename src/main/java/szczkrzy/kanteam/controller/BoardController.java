@@ -3,10 +3,10 @@ package szczkrzy.kanteam.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import szczkrzy.kanteam.model.entity.KTBoard;
-import szczkrzy.kanteam.model.entity.KTColumn;
-import szczkrzy.kanteam.model.entity.KTTask;
-import szczkrzy.kanteam.model.request.BoardCreateRequest;
+import szczkrzy.kanteam.model.entities.KTBoard;
+import szczkrzy.kanteam.model.entities.KTColumn;
+import szczkrzy.kanteam.model.entities.KTTask;
+import szczkrzy.kanteam.model.requests.BoardCreateRequest;
 import szczkrzy.kanteam.services.BoardService;
 
 import java.util.List;

@@ -1,10 +1,11 @@
-package szczkrzy.kanteam.model.entity;
+package szczkrzy.kanteam.model.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import szczkrzy.kanteam.model.request.SignupRequest;
+import szczkrzy.kanteam.model.notification.NotificationSubject;
+import szczkrzy.kanteam.model.requests.SignupRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -14,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class KTUser {
+public class KTUser implements NotificationSubject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -57,5 +58,10 @@ public class KTUser {
         email = signupRequest.getEmail();
         password = signupRequest.getPassword();
         fullName = signupRequest.getFullName();
+    }
+
+    @Override
+    public String getNotificationTextRepresentation() {
+        return fullName;
     }
 }

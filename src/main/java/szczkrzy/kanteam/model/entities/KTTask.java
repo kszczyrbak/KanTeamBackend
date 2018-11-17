@@ -1,15 +1,20 @@
-package szczkrzy.kanteam.model.entity;
+package szczkrzy.kanteam.model.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import szczkrzy.kanteam.model.enums.TaskPriority;
+import szczkrzy.kanteam.model.notification.NotificationSubject;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class KTTask {
+public class KTTask implements NotificationSubject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,7 +36,7 @@ public class KTTask {
     @Column
     private String description;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "task_users",
             joinColumns = {@JoinColumn(name = "task_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
@@ -53,4 +58,28 @@ public class KTTask {
     @Column(name = "task_order")
     @Basic
     private int order;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private TaskPriority priority;
+
+    @JsonGetter
+    private int getPriority() {
+        return priority.getValue();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getNotificationTextRepresentation() {
+        return name;
+    }
+
+    public void addUser(KTUser user) {
+        if (users == null) {
+            users = new ArrayList<>();
+            users.add(user);
+        } else {
+            users.add(user);
+        }
+    }
 }

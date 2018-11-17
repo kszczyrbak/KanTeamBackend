@@ -1,4 +1,4 @@
-package szczkrzy.kanteam.model.request;
+package szczkrzy.kanteam.model.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

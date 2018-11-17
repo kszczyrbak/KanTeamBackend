@@ -3,8 +3,8 @@ package szczkrzy.kanteam.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import szczkrzy.kanteam.model.entity.KTTeam;
-import szczkrzy.kanteam.model.request.TeamCreateRequest;
+import szczkrzy.kanteam.model.entities.KTTeam;
+import szczkrzy.kanteam.model.requests.TeamCreateRequest;
 import szczkrzy.kanteam.services.TeamService;
 
 @RestController

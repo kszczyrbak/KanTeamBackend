@@ -5,11 +5,12 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import szczkrzy.kanteam.model.entity.*;
-import szczkrzy.kanteam.model.request.BoardCreateRequest;
+import szczkrzy.kanteam.model.entities.*;
+import szczkrzy.kanteam.model.enums.NotificationType;
+import szczkrzy.kanteam.model.requests.BoardCreateRequest;
 import szczkrzy.kanteam.repositories.*;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,14 +22,16 @@ public class BoardService {
     private final TeamRepository teamRepository;
     private final ColumnRepository columnRepository;
     private final TaskRepository taskRepository;
+    private final NotificationService notificationService;
 
     @Autowired
-    public BoardService(BoardRepository boardRepository, UserRepository userRepository, TeamRepository teamRepository, ColumnRepository columnRepository, TaskRepository taskRepository) {
+    public BoardService(BoardRepository boardRepository, UserRepository userRepository, TeamRepository teamRepository, ColumnRepository columnRepository, TaskRepository taskRepository, NotificationService notificationService) {
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
         this.columnRepository = columnRepository;
         this.taskRepository = taskRepository;
+        this.notificationService = notificationService;
     }
 
     public ResponseEntity getById(int id) {
@@ -66,55 +69,42 @@ public class BoardService {
     }
 
     public ResponseEntity<?> create(BoardCreateRequest board) {
-        Optional<KTTeam> team = teamRepository.findById(board.getTeam());
-        Optional<KTUser> user = userRepository.findById(board.getUser());
+        KTTeam team = teamRepository.findById(board.getTeam()).get();
+        KTUser user = userRepository.findById(board.getUser()).get();
         KTBoard newBoard = new KTBoard();
         newBoard.setName(board.getName());
-        team.ifPresent(newBoard::setTeam);
-
-        if (user.isPresent()) {
-            List<KTUser> users = new ArrayList<>();
-            users.add(user.get());
-            newBoard.setUsers(users);
-        }
-
+        newBoard.setTeam(team);
+        newBoard.addUser(user);
         boardRepository.save(newBoard);
         return new ResponseEntity<>(newBoard, HttpStatus.CREATED);
     }
 
-    //todo: fix duplicate
-
     public ResponseEntity addUser(int id, int userId) {
-        Optional<KTUser> possibleUser = userRepository.findById(userId);
-        if (possibleUser.isPresent()) {
-            Optional<KTBoard> possibleBoard = boardRepository.findById(id);
-            if (!possibleBoard.isPresent())
-                return ResponseEntity.badRequest().build();
-            KTBoard board = possibleBoard.get();
-            if (board.getUsers() == null) {
-                List<KTUser> users = new ArrayList<>();
-                users.add(possibleUser.get());
-                board.setUsers(users);
-            } else {
-                board.getUsers().add(possibleUser.get());
-            }
-            KTBoard newBoard = boardRepository.save(board);
-            return new ResponseEntity<>(newBoard, HttpStatus.CREATED);
+        KTUser user = userRepository.findById(userId).get();
+        KTBoard board = boardRepository.findById(id).get();
+        board.addUser(user);
 
-        }
-        return ResponseEntity.badRequest().build();
+        KTBoard newBoard = boardRepository.save(board);
+        KTNotification notification1 = notificationService.createNotificationObject(NotificationType.BOARD_USER_INVITED, user, newBoard);
+        notification1.setRecipients(board.getUsers());
+        notificationService.send(notification1);
+
+        KTNotification notification2 = notificationService.createNotificationObject(NotificationType.USER_BOARD_INVITE, newBoard);
+        notification2.setRecipients(Collections.singletonList(user));
+        notificationService.send(notification2);
+
+        return new ResponseEntity<>(newBoard, HttpStatus.CREATED);
+
     }
 
     public ResponseEntity<?> getTasksById(int id) {
-        Optional<KTBoard> board = boardRepository.findById(id);
-        return board.<ResponseEntity<?>>map(ktBoard -> ResponseEntity.ok(ktBoard.getColumns())).orElse(ResponseEntity.badRequest().build());
+        KTBoard board = boardRepository.findById(id).get();
+        List<KTColumn> columns = board.getColumns();
+        return ResponseEntity.ok(columns);
     }
 
     public ResponseEntity<?> getMembersById(int id) {
-        Optional<KTBoard> possibleBoard = boardRepository.findById(id);
-        if (!possibleBoard.isPresent())
-            return ResponseEntity.badRequest().build();
-        KTBoard board = possibleBoard.get();
+        KTBoard board = boardRepository.findById(id).get();
         List<KTUser> members = board.getUsers();
         if (board.getTeam() != null)
             members.addAll(board.getTeam().getMembers());
@@ -122,21 +112,14 @@ public class BoardService {
     }
 
     public ResponseEntity addColumn(int id, KTColumn column) {
-        Optional<KTBoard> possibleBoard = boardRepository.findById(id);
-        if (!possibleBoard.isPresent())
-            return ResponseEntity.badRequest().build();
-        KTBoard board = possibleBoard.get();
+        KTBoard board = boardRepository.findById(id).get();
         column.setBoard(board);
-
         KTColumn newColumn = columnRepository.save(column);
         return new ResponseEntity<>(newColumn, HttpStatus.CREATED);
     }
 
     public ResponseEntity updateColumns(int id, List<KTColumn> columns) {
-        Optional<KTBoard> possibleBoard = boardRepository.findById(id);
-        if (!possibleBoard.isPresent())
-            return ResponseEntity.badRequest().build();
-        KTBoard board = possibleBoard.get();
+        KTBoard board = boardRepository.findById(id).get();
         for (KTColumn column : columns) {
             column.setBoard(board);
             columnRepository.save(column);
@@ -145,10 +128,7 @@ public class BoardService {
     }
 
     public ResponseEntity updateColumnTasks(int id, List<KTTask> tasks) {
-        Optional<KTColumn> possibleColumn = columnRepository.findById(id);
-        if (!possibleColumn.isPresent())
-            return ResponseEntity.badRequest().build();
-        KTColumn column = possibleColumn.get();
+        KTColumn column = columnRepository.findById(id).get();
         for (KTTask task : tasks) {
             task.setColumn(column);
             taskRepository.save(task);
@@ -157,16 +137,15 @@ public class BoardService {
     }
 
     public ResponseEntity addTask(int boardId, int colId, KTTask task) {
-        Optional<KTBoard> possibleBoard = boardRepository.findById(boardId);
-        if (!possibleBoard.isPresent())
-            return ResponseEntity.badRequest().build();
-        Optional<KTColumn> possibleColumn = columnRepository.findById(colId);
-        if (!possibleColumn.isPresent())
-            return ResponseEntity.badRequest().build();
-        KTColumn column = possibleColumn.get();
+        KTBoard board = boardRepository.findById(boardId).get();
+        KTColumn column = columnRepository.findById(colId).get();
         task.setColumn(column);
-
         KTTask newTask = taskRepository.save(task);
+
+        KTNotification notification = notificationService.createNotificationObject(NotificationType.BOARD_TASK_CREATED, board);
+        notification.setRecipients(board.getUsers());
+        notificationService.send(notification);
+
         return new ResponseEntity<>(newTask, HttpStatus.CREATED);
     }
 }

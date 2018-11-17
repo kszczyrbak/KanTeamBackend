@@ -16,12 +16,12 @@ import java.util.function.Function;
 @Service
 public class JwtTokenService {
 
-    String getUsername(String authToken) {
+    public String getLogin(String authToken) {
         return getClaim(authToken, Claims::getSubject);
     }
 
     boolean validate(String authToken, UserDetails userDetails) {
-        String username = getUsername(authToken);
+        String username = getLogin(authToken);
         return (username.equals(userDetails.getUsername()) && !isExpired(authToken));
     }
 

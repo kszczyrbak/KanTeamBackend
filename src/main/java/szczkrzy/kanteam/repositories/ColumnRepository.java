@@ -2,7 +2,7 @@ package szczkrzy.kanteam.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import szczkrzy.kanteam.model.entity.KTColumn;
+import szczkrzy.kanteam.model.entities.KTColumn;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package szczkrzy.kanteam.model.entity;
+package szczkrzy.kanteam.model.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

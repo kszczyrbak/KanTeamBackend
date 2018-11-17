@@ -1,4 +1,4 @@
-package szczkrzy.kanteam.model.request;
+package szczkrzy.kanteam.model.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class BoardCreateRequest {
+public class TeamCreateRequest {
 
+    private int ownerId;
     private String name;
-    private int team;
-    private int user;
 }
