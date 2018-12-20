@@ -1,6 +1,5 @@
 package szczkrzy.kanteam.config;
 
-import ch.qos.logback.core.net.server.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,7 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable().
                 authorizeRequests()
                 .antMatchers("/api/*").authenticated()
-                .antMatchers("/auth/*", "/**").permitAll()
+                .antMatchers("/auth/*").permitAll()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unathorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

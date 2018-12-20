@@ -25,6 +25,4 @@ public interface UserRepository extends JpaRepository<KTUser, Integer> {
 
     @Query("select u from KTUser u where LOWER(u.fullName) like LOWER(concat(?1, '%'))")
     List<KTUser> findByFullName(String name);
-
-
 }

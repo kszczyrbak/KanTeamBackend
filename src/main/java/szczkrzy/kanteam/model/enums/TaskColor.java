@@ -1,14 +1,15 @@
 package szczkrzy.kanteam.model.enums;
 
-public enum TaskPriority {
-    CRITICAL(0),
-    HIGH(1),
-    MEDIUM(2),
-    LOW(3);
+public enum TaskColor {
+    BLACK(0),
+    RED(1),
+    YELLOW(2),
+    GREEN(3),
+    BLUE(4);
 
     private final int value;
 
-    TaskPriority(int value) {
+    TaskColor(int value) {
         this.value = value;
     }
 

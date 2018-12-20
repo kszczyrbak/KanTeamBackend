@@ -5,18 +5,13 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import szczkrzy.kanteam.model.entities.KTComment;
-import szczkrzy.kanteam.model.entities.KTNotification;
-import szczkrzy.kanteam.model.entities.KTTask;
-import szczkrzy.kanteam.model.entities.KTUser;
+import szczkrzy.kanteam.model.entities.*;
 import szczkrzy.kanteam.model.enums.NotificationType;
-import szczkrzy.kanteam.model.enums.TaskPriority;
+import szczkrzy.kanteam.model.enums.TaskColor;
 import szczkrzy.kanteam.model.requests.CommentCreateRequest;
-import szczkrzy.kanteam.repositories.ColumnRepository;
-import szczkrzy.kanteam.repositories.CommentRepository;
-import szczkrzy.kanteam.repositories.TaskRepository;
-import szczkrzy.kanteam.repositories.UserRepository;
+import szczkrzy.kanteam.repositories.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -26,13 +21,15 @@ public class TaskService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final NotificationService notificationService;
+    private final SubtaskRepository subtaskRepository;
 
     @Autowired
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository, CommentRepository commentRepository, ColumnRepository columnRepository, NotificationService notificationService) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, CommentRepository commentRepository, ColumnRepository columnRepository, NotificationService notificationService, SubtaskRepository subtaskRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
         this.notificationService = notificationService;
+        this.subtaskRepository = subtaskRepository;
     }
 
     public ResponseEntity getById(int id) {
@@ -54,6 +51,7 @@ public class TaskService {
         existingTask.setName(task.getName());
         existingTask.setDate(task.getDate());
         existingTask.setDescription(task.getDescription());
+        existingTask.setColor(task.getColorEnum());
         KTTask updatedTask = taskRepository.save(existingTask);
 
         KTNotification notification = notificationService.createNotificationObject(NotificationType.TASK_UPDATED, updatedTask);
@@ -105,6 +103,7 @@ public class TaskService {
         KTComment comment = new KTComment(commentRequest);
         comment.setUser(user);
         comment.setTask(task);
+        comment.setDate(new Date());
         KTComment newComment = commentRepository.save(comment);
 
         KTNotification notification = notificationService.createNotificationObject(NotificationType.TASK_COMMENT_ADDED, task);
@@ -123,7 +122,22 @@ public class TaskService {
         return new ResponseEntity<>(newTask, HttpStatus.CREATED);
     }
 
-    public ResponseEntity getPriorities() {
-        return ResponseEntity.ok(TaskPriority.values());
+    public ResponseEntity getColors() {
+        return ResponseEntity.ok(TaskColor.values());
+    }
+
+    public ResponseEntity updateSubtask(KTSubtask subtask) {
+        KTSubtask savedTask = subtaskRepository.findById(subtask.getId()).get();
+        subtask.setTask(savedTask.getTask());
+        KTSubtask updatedSubtask = subtaskRepository.save(subtask);
+        return new ResponseEntity<>(updatedSubtask, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity addSubtask(int id, KTSubtask subtask) {
+        KTTask task = taskRepository.findById(id).get();
+        subtask.setTask(task);
+        task.addSubtask(subtask);
+        KTTask updatedTask = taskRepository.save(task);
+        return new ResponseEntity<>(updatedTask, HttpStatus.CREATED);
     }
 }

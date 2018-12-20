@@ -3,6 +3,7 @@ package szczkrzy.kanteam.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import szczkrzy.kanteam.model.entities.KTSubtask;
 import szczkrzy.kanteam.model.entities.KTTask;
 import szczkrzy.kanteam.model.requests.CommentCreateRequest;
 import szczkrzy.kanteam.services.TaskService;
@@ -38,9 +39,9 @@ public class TaskController {
         return taskService.update(task);
     }
 
-    @GetMapping("/priorities")
-    public ResponseEntity getPriorities(){
-        return taskService.getPriorities();
+    @GetMapping("/colors")
+    public ResponseEntity getColors() {
+        return taskService.getColors();
     }
 
     @PutMapping("/{id}/users/add")
@@ -71,6 +72,16 @@ public class TaskController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteById(@PathVariable int id) {
         return taskService.removeByid(id);
+    }
+
+    @PutMapping("/subtasks")
+    public ResponseEntity updateSubtask(@RequestBody KTSubtask subtask) {
+        return taskService.updateSubtask(subtask);
+    }
+
+    @PostMapping("/{id}/subtasks")
+    public ResponseEntity<?> addSubtask(@PathVariable int id, @RequestBody KTSubtask subtask) {
+        return taskService.addSubtask(id, subtask);
     }
 
 }

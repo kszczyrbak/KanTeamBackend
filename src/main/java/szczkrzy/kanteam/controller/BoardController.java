@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import szczkrzy.kanteam.model.entities.KTBoard;
+import szczkrzy.kanteam.model.entities.KTColorMapping;
 import szczkrzy.kanteam.model.entities.KTColumn;
 import szczkrzy.kanteam.model.entities.KTTask;
 import szczkrzy.kanteam.model.requests.BoardCreateRequest;
@@ -88,5 +89,9 @@ public class BoardController {
         return boardService.getMembersById(id);
     }
 
+    @PutMapping("/{id}/colors")
+    public ResponseEntity<?> changeColorMappings(@PathVariable int id, @RequestBody List<KTColorMapping> mappings) {
+        return boardService.changeColorMappings(id, mappings);
+    }
 
 }

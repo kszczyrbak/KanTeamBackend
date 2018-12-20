@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import szczkrzy.kanteam.model.notification.NotificationSubject;
 
 import javax.persistence.*;
@@ -29,7 +27,6 @@ public class KTBoard implements NotificationSubject {
     private String name;
 
     @JoinColumn(name = "team_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne
     private KTTeam team;
 
@@ -41,8 +38,11 @@ public class KTBoard implements NotificationSubject {
     private List<KTUser> users;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KTColumn> columns;
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<KTColorMapping> colorMappings;
 
     @Override
     @JsonIgnore

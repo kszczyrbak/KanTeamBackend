@@ -12,7 +12,6 @@ import szczkrzy.kanteam.repositories.*;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BoardService {
@@ -23,21 +22,21 @@ public class BoardService {
     private final ColumnRepository columnRepository;
     private final TaskRepository taskRepository;
     private final NotificationService notificationService;
+    private final ColorMappingRepository colorMappingRepository;
 
     @Autowired
-    public BoardService(BoardRepository boardRepository, UserRepository userRepository, TeamRepository teamRepository, ColumnRepository columnRepository, TaskRepository taskRepository, NotificationService notificationService) {
+    public BoardService(BoardRepository boardRepository, UserRepository userRepository, TeamRepository teamRepository, ColumnRepository columnRepository, TaskRepository taskRepository, NotificationService notificationService, ColorMappingRepository colorMappingRepository) {
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
         this.columnRepository = columnRepository;
         this.taskRepository = taskRepository;
         this.notificationService = notificationService;
+        this.colorMappingRepository = colorMappingRepository;
     }
 
     public ResponseEntity getById(int id) {
-        Optional<KTBoard> board = boardRepository.findById(id);
-        if (!board.isPresent())
-            return ResponseEntity.badRequest().build();
+        KTBoard board = boardRepository.findById(id).get();
         return ResponseEntity.ok(board);
     }
 
@@ -69,7 +68,7 @@ public class BoardService {
     }
 
     public ResponseEntity<?> create(BoardCreateRequest board) {
-        KTTeam team = teamRepository.findById(board.getTeam()).get();
+        KTTeam team = tryGetTeam(board.getTeam());
         KTUser user = userRepository.findById(board.getUser()).get();
         KTBoard newBoard = new KTBoard();
         newBoard.setName(board.getName());
@@ -147,5 +146,23 @@ public class BoardService {
         notificationService.send(notification);
 
         return new ResponseEntity<>(newTask, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<?> changeColorMappings(int id, List<KTColorMapping> mappings) {
+        KTBoard board = boardRepository.findById(id).get();
+        board.getColorMappings().clear();
+        mappings.forEach(mapping -> mapping.setBoard(board));
+        board.getColorMappings().addAll(mappings);
+        KTBoard updatedBoard = boardRepository.save(board);
+        return new ResponseEntity<>(updatedBoard, HttpStatus.CREATED);
+    }
+
+
+    private KTTeam tryGetTeam(int teamId) {
+        try {
+            return teamRepository.findById(teamId).get();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
