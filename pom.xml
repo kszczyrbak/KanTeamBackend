@@ -159,6 +159,7 @@
                     <source>10</source>
                     <target>10</target>
                 </configuration>
+                <version>3.8.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
