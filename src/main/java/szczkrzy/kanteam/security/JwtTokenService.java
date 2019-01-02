@@ -27,7 +27,7 @@ public class JwtTokenService {
 
     public String generateToken(SecurityUserModel user) {
 
-        Claims claims = Jwts.claims().setSubject(user.getLogin());
+        Claims claims = Jwts.claims().setSubject(user.getUser().getEmail());
         claims.put("scopes", user.getAuthorities());
 
         Date now = new Date();

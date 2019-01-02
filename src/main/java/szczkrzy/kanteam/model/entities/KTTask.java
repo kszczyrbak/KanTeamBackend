@@ -3,13 +3,10 @@ package szczkrzy.kanteam.model.entities;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import szczkrzy.kanteam.model.enums.TaskPriority;
+import szczkrzy.kanteam.model.enums.TaskColor;
 import szczkrzy.kanteam.model.notification.NotificationSubject;
 
 import javax.persistence.*;
@@ -36,20 +33,22 @@ public class KTTask implements NotificationSubject {
     @Column
     private String description;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     @JoinTable(name = "task_users",
             joinColumns = {@JoinColumn(name = "task_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private List<KTUser> users;
 
     @JoinColumn(name = "column_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne
     @JsonIgnore
     private KTColumn column;
 
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<KTComment> comments;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<KTSubtask> subtasks;
 
     @Column
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -61,12 +60,16 @@ public class KTTask implements NotificationSubject {
 
     @Enumerated(EnumType.STRING)
     @Column
-    private TaskPriority priority;
+    private TaskColor color;
 
-    @JsonGetter
-    private int getPriority() {
-        return priority.getValue();
+    @JsonIgnore
+    public TaskColor getColorEnum() {
+        return color;
     }
+
+//    public String getColor(){
+//        return color.toString().toLowerCase();
+//    }
 
     @Override
     @JsonIgnore
@@ -80,6 +83,15 @@ public class KTTask implements NotificationSubject {
             users.add(user);
         } else {
             users.add(user);
+        }
+    }
+
+    public void addSubtask(KTSubtask subtask) {
+        if (subtasks == null) {
+            subtasks = new ArrayList<>();
+            subtasks.add(subtask);
+        } else {
+            subtasks.add(subtask);
         }
     }
 }

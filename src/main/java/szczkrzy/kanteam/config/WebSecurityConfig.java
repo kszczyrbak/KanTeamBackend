@@ -1,6 +1,5 @@
 package szczkrzy.kanteam.config;
 
-import ch.qos.logback.core.net.server.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import szczkrzy.kanteam.security.ClientTokenInterceptor;
 import szczkrzy.kanteam.security.JwtAuthenticationFilter;
 
 @Configuration
@@ -31,20 +29,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
 
-    private final ClientTokenInterceptor clientTokenInterceptor;
 
 
     @Autowired
     public WebSecurityConfig(PasswordEncoder passwordEncoder,
                              AuthenticationEntryPoint unathorizedHandler,
                              JwtAuthenticationFilter authenticationTokenFilter,
-                             UserDetailsService userDetailsService,
-                             ClientTokenInterceptor clientTokenInterceptor) {
+                             UserDetailsService userDetailsService) {
         this.passwordEncoder = passwordEncoder;
         this.unathorizedHandler = unathorizedHandler;
         this.authenticationTokenFilter = authenticationTokenFilter;
         this.userDetailsService = userDetailsService;
-        this.clientTokenInterceptor = clientTokenInterceptor;
     }
 
     @Bean
@@ -64,7 +59,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable().
                 authorizeRequests()
                 .antMatchers("/api/*").authenticated()
-                .antMatchers("/auth/*", "/**").permitAll()
+                .antMatchers("/auth/*").permitAll()
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unathorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

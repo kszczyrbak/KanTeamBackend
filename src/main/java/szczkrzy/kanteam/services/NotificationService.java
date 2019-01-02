@@ -6,9 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import szczkrzy.kanteam.model.entities.KTNotification;
+import szczkrzy.kanteam.model.entities.KTUser;
 import szczkrzy.kanteam.model.enums.NotificationType;
 import szczkrzy.kanteam.model.notification.NotificationFactory;
 import szczkrzy.kanteam.model.notification.NotificationSubject;
+
+import java.util.List;
 
 @Service
 public class NotificationService {
@@ -24,11 +27,12 @@ public class NotificationService {
         this.notificationFactory = notificationFactory;
     }
 
-    public KTNotification createNotificationObject(NotificationType notificationType, NotificationSubject... subjects) {
-        return notificationFactory.getNotification(notificationType, subjects);
+    private KTNotification createNotificationObject(NotificationType notificationType, List<KTUser> recipients, NotificationSubject... subjects) {
+        return notificationFactory.getNotification(notificationType, recipients, subjects);
     }
 
-    public void send(KTNotification notification) {
+    public void send(NotificationType notificationType, List<KTUser> recipients, NotificationSubject... subjects) {
+        KTNotification notification = notificationFactory.getNotification(notificationType, recipients, subjects);
         RestTemplate restTemplate = new RestTemplate();
         String notificationEndpoint = notificationMicroserviceURL + "api/notifications";
         try {

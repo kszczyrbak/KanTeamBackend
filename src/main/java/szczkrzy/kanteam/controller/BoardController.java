@@ -2,10 +2,9 @@ package szczkrzy.kanteam.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import szczkrzy.kanteam.model.entities.KTBoard;
-import szczkrzy.kanteam.model.entities.KTColumn;
-import szczkrzy.kanteam.model.entities.KTTask;
+import szczkrzy.kanteam.model.entities.*;
 import szczkrzy.kanteam.model.requests.BoardCreateRequest;
 import szczkrzy.kanteam.services.BoardService;
 
@@ -39,6 +38,7 @@ public class BoardController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAll() {
         return boardService.getAll();
     }
@@ -58,12 +58,17 @@ public class BoardController {
         return boardService.removeByid(id);
     }
 
+    @DeleteMapping("/{id}/columns/{colId}")
+    public ResponseEntity deleteColumnById(@PathVariable int id, @PathVariable int colId) {
+        return boardService.removeColumnById(id, colId);
+    }
+
     @GetMapping("/{id}/columns")
     public ResponseEntity<?> getTaskColumns(@PathVariable int id) {
         return boardService.getTasksById(id);
     }
 
-    @PutMapping("/{id}/columns/add")
+    @PostMapping("/{id}/columns")
     public ResponseEntity addColumn(@PathVariable int id, @RequestBody KTColumn column) {
         return boardService.addColumn(id, column);
     }
@@ -73,20 +78,29 @@ public class BoardController {
         return boardService.updateColumns(id, columns);
     }
 
+    @PutMapping("/{id}/users")
+    public ResponseEntity updateUsers(@PathVariable int id, @RequestBody List<KTUser> users) {
+        return boardService.updateUsers(id, users);
+    }
+
     @PutMapping("/{id}/columns/{colId}/tasks")
     public ResponseEntity updateColumnTasks(@PathVariable int colId, @RequestBody List<KTTask> tasks) {
         return boardService.updateColumnTasks(colId, tasks);
     }
 
-    @PutMapping("/{id}/columns/{colId}/tasks/add")
+    @PostMapping("/{id}/columns/{colId}/tasks")
     public ResponseEntity addTask(@PathVariable int id, @PathVariable int colId, @RequestBody KTTask task) {
         return boardService.addTask(id, colId, task);
     }
 
-    @GetMapping("/{id}/members")
-    public ResponseEntity<?> getMembers(@PathVariable int id) {
+    @GetMapping("/{id}/users")
+    public ResponseEntity<?> getUsers(@PathVariable int id) {
         return boardService.getMembersById(id);
     }
 
+    @PutMapping("/{id}/colors")
+    public ResponseEntity<?> changeColorMappings(@PathVariable int id, @RequestBody List<KTColorMapping> mappings) {
+        return boardService.changeColorMappings(id, mappings);
+    }
 
 }
