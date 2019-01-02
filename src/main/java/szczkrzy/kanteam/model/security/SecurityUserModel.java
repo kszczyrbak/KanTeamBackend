@@ -5,32 +5,35 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import szczkrzy.kanteam.model.entities.KTRole;
 import szczkrzy.kanteam.model.entities.KTUser;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class SecurityUserModel implements UserDetails {
 
-    private String login;
-    private String password;
-
-    public SecurityUserModel(KTUser KTUser) {
-        this.login = KTUser.getEmail();
-        this.password = KTUser.getPassword();
-    }
+    private KTUser user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.createAuthorityList("ADMIN");
+        return this.user.getRoles().stream().map(KTRole::toString).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return login;
+        return user.getEmail();
     }
 
     @Override

@@ -2,6 +2,7 @@ package szczkrzy.kanteam.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import szczkrzy.kanteam.model.entities.KTSubtask;
 import szczkrzy.kanteam.model.entities.KTTask;
@@ -30,6 +31,7 @@ public class TaskController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAll() {
         return taskService.getAll();
     }
@@ -49,14 +51,24 @@ public class TaskController {
         return taskService.addUser(id, userId);
     }
 
-    @PutMapping("/{id}/users/remove")
-    public ResponseEntity removeUser(@PathVariable int id, @RequestBody int userId) {
+    @DeleteMapping("/{id}/users/{userId}")
+    public ResponseEntity removeUser(@PathVariable int id, @PathVariable int userId) {
         return taskService.removeUser(id, userId);
     }
 
-    @PutMapping("/{id}/comments/add")
+    @PostMapping("/{id}/comments")
     public ResponseEntity addComment(@PathVariable int id, @RequestBody CommentCreateRequest comment) {
         return taskService.addComment(id, comment);
+    }
+
+    @DeleteMapping("/{id}/comments/{commentId}")
+    public ResponseEntity removeComment(@PathVariable int id, @PathVariable int commentId) {
+        return taskService.removeComment(id, commentId);
+    }
+
+    @DeleteMapping("/{id}/subtasks/{subtaskId}")
+    public ResponseEntity removeSubtask(@PathVariable int id, @PathVariable int subtaskId) {
+        return taskService.removeSubtask(id, subtaskId);
     }
 
     @GetMapping("/{id}/users")

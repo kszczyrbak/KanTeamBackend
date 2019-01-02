@@ -24,7 +24,7 @@ public class KTColumn {
     @Column
     private String name;
 
-    @OneToMany(mappedBy = "column")
+    @OneToMany(mappedBy = "column", cascade = CascadeType.DETACH, orphanRemoval = true)
     private List<KTTask> tasks;
 
     @JoinColumn(name = "board_id")

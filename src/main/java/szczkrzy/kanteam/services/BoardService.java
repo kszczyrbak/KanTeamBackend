@@ -4,12 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Service;
 import szczkrzy.kanteam.model.entities.*;
 import szczkrzy.kanteam.model.enums.NotificationType;
 import szczkrzy.kanteam.model.requests.BoardCreateRequest;
+import szczkrzy.kanteam.model.security.SecurityUserModel;
 import szczkrzy.kanteam.repositories.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,11 +63,15 @@ public class BoardService {
     }
 
     public ResponseEntity removeByid(int id) {
-        try {
-            boardRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        String login = SecurityContextHolder.getContext().getAuthentication().getName();
+        KTUser user = userRepository.findByEmail(login);
+        KTBoard board = boardRepository.findById(id).get();
+        if (board.getUsers().contains(user))
+            try {
+                boardRepository.deleteById(id);
+            } catch (EmptyResultDataAccessException e) {
+                return ResponseEntity.badRequest().build();
+            }
         return ResponseEntity.ok().build();
     }
 
@@ -72,8 +80,13 @@ public class BoardService {
         KTUser user = userRepository.findById(board.getUser()).get();
         KTBoard newBoard = new KTBoard();
         newBoard.setName(board.getName());
-        newBoard.setTeam(team);
-        newBoard.addUser(user);
+        if (team != null) {
+            newBoard.setTeam(team);
+            List<KTUser> teamMembers = new ArrayList<>(team.getMembers());
+            newBoard.setUsers(teamMembers);
+        } else {
+            newBoard.addUser(user);
+        }
         boardRepository.save(newBoard);
         return new ResponseEntity<>(newBoard, HttpStatus.CREATED);
     }
@@ -84,13 +97,7 @@ public class BoardService {
         board.addUser(user);
 
         KTBoard newBoard = boardRepository.save(board);
-        KTNotification notification1 = notificationService.createNotificationObject(NotificationType.BOARD_USER_INVITED, user, newBoard);
-        notification1.setRecipients(board.getUsers());
-        notificationService.send(notification1);
-
-        KTNotification notification2 = notificationService.createNotificationObject(NotificationType.USER_BOARD_INVITE, newBoard);
-        notification2.setRecipients(Collections.singletonList(user));
-        notificationService.send(notification2);
+        sendUserAddedNotifications(user, newBoard);
 
         return new ResponseEntity<>(newBoard, HttpStatus.CREATED);
 
@@ -123,7 +130,7 @@ public class BoardService {
             column.setBoard(board);
             columnRepository.save(column);
         }
-        return ResponseEntity.ok(200);
+        return ResponseEntity.ok(board.getColumns());
     }
 
     public ResponseEntity updateColumnTasks(int id, List<KTTask> tasks) {
@@ -141,9 +148,7 @@ public class BoardService {
         task.setColumn(column);
         KTTask newTask = taskRepository.save(task);
 
-        KTNotification notification = notificationService.createNotificationObject(NotificationType.BOARD_TASK_CREATED, board);
-        notification.setRecipients(board.getUsers());
-        notificationService.send(notification);
+        notificationService.send(NotificationType.BOARD_TASK_CREATED, board.getUsers(), board);
 
         return new ResponseEntity<>(newTask, HttpStatus.CREATED);
     }
@@ -164,5 +169,36 @@ public class BoardService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public ResponseEntity removeColumnById(int id, int colId) {
+        KTBoard board = boardRepository.findById(id).get();
+        KTColumn column = columnRepository.findById(colId).get();
+        String login = SecurityContextHolder.getContext().getAuthentication().getName();
+        KTUser user = userRepository.findByEmail(login);
+        if (board.getUsers().stream().map(KTUser::getId).anyMatch(uid -> uid == user.getId())) {
+            columnRepository.delete(column);
+        }
+
+        return ResponseEntity.accepted().build();
+    }
+
+    public ResponseEntity updateUsers(int id, List<KTUser> users) {
+
+        KTBoard board = boardRepository.findById(id).get();
+        List<KTUser> oldUsers = board.getUsers();
+        board.setUsers(users);
+        KTBoard updatedBoard = boardRepository.save(board);
+        List<KTUser> newUsers = new ArrayList<>(updatedBoard.getUsers());
+        newUsers.removeAll(oldUsers);
+
+        newUsers.forEach(user -> sendUserAddedNotifications(user, updatedBoard));
+
+        return ResponseEntity.ok(updatedBoard.getUsers());
+    }
+
+    private void sendUserAddedNotifications(KTUser user, KTBoard board) {
+        notificationService.send(NotificationType.BOARD_USER_INVITED, board.getUsers(), user, board);
+        notificationService.send(NotificationType.USER_BOARD_INVITE, Collections.singletonList(user), board);
     }
 }

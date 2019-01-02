@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import szczkrzy.kanteam.security.ClientTokenInterceptor;
 import szczkrzy.kanteam.security.JwtAuthenticationFilter;
 
 @Configuration
@@ -30,20 +29,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
 
-    private final ClientTokenInterceptor clientTokenInterceptor;
 
 
     @Autowired
     public WebSecurityConfig(PasswordEncoder passwordEncoder,
                              AuthenticationEntryPoint unathorizedHandler,
                              JwtAuthenticationFilter authenticationTokenFilter,
-                             UserDetailsService userDetailsService,
-                             ClientTokenInterceptor clientTokenInterceptor) {
+                             UserDetailsService userDetailsService) {
         this.passwordEncoder = passwordEncoder;
         this.unathorizedHandler = unathorizedHandler;
         this.authenticationTokenFilter = authenticationTokenFilter;
         this.userDetailsService = userDetailsService;
-        this.clientTokenInterceptor = clientTokenInterceptor;
     }
 
     @Bean

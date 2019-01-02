@@ -30,11 +30,10 @@ public class KTBoard implements NotificationSubject {
     @ManyToOne
     private KTTeam team;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(name = "board_users",
             joinColumns = {@JoinColumn(name = "board_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
-    @JsonIgnore
     private List<KTUser> users;
 
     @JsonIgnore

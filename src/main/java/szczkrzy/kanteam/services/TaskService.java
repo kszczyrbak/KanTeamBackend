@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import szczkrzy.kanteam.model.entities.*;
 import szczkrzy.kanteam.model.enums.NotificationType;
@@ -54,9 +55,7 @@ public class TaskService {
         existingTask.setColor(task.getColorEnum());
         KTTask updatedTask = taskRepository.save(existingTask);
 
-        KTNotification notification = notificationService.createNotificationObject(NotificationType.TASK_UPDATED, updatedTask);
-        notification.setRecipients(updatedTask.getUsers());
-        notificationService.send(notification);
+        notificationService.send(NotificationType.TASK_UPDATED, updatedTask.getUsers(), updatedTask);
 
         return new ResponseEntity<>(updatedTask, HttpStatus.CREATED);
     }
@@ -72,11 +71,16 @@ public class TaskService {
     }
 
     public ResponseEntity removeByid(int id) {
-        try {
-            taskRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        String login = SecurityContextHolder.getContext().getAuthentication().getName();
+        KTUser user = userRepository.findByEmail(login);
+        KTTask task = taskRepository.findById(id).get();
+        KTBoard board = task.getColumn().getBoard();
+        if (board.getUsers().contains(user))
+            try {
+                taskRepository.deleteById(id);
+            } catch (EmptyResultDataAccessException e) {
+                return ResponseEntity.badRequest().build();
+            }
 
         return ResponseEntity.ok().build();
     }
@@ -106,9 +110,7 @@ public class TaskService {
         comment.setDate(new Date());
         KTComment newComment = commentRepository.save(comment);
 
-        KTNotification notification = notificationService.createNotificationObject(NotificationType.TASK_COMMENT_ADDED, task);
-        notification.setRecipients(task.getUsers());
-        notificationService.send(notification);
+        notificationService.send(NotificationType.TASK_COMMENT_ADDED, task.getUsers(), task);
 
         return new ResponseEntity<>(newComment, HttpStatus.CREATED);
     }
@@ -139,5 +141,17 @@ public class TaskService {
         task.addSubtask(subtask);
         KTTask updatedTask = taskRepository.save(task);
         return new ResponseEntity<>(updatedTask, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity removeComment(int id, int commentId) {
+        commentRepository.deleteById(commentId);
+        KTTask task = taskRepository.findById(id).get();
+        return new ResponseEntity<>(task, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity removeSubtask(int id, int subtaskId) {
+        subtaskRepository.deleteById(subtaskId);
+        KTTask task = taskRepository.findById(id).get();
+        return new ResponseEntity<>(task, HttpStatus.CREATED);
     }
 }

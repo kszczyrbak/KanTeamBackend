@@ -9,6 +9,7 @@ import szczkrzy.kanteam.model.requests.SignupRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,7 +24,7 @@ public class KTUser implements NotificationSubject {
     private int id;
 
 
-    @ManyToMany(cascade = CascadeType.ALL,
+    @ManyToMany(cascade = CascadeType.REFRESH,
             mappedBy = "members")
     @JsonIgnore
     private List<KTTeam> teams;
@@ -36,11 +37,16 @@ public class KTUser implements NotificationSubject {
     @Column
     private String password;
 
+    @JsonIgnore
+    public String getPassword() {
+        return password;
+    }
+
     @NotNull
     @Column
     private String fullName;
 
-    @ManyToMany(cascade = CascadeType.ALL,
+    @ManyToMany(cascade = CascadeType.REFRESH,
             mappedBy = "users")
     @JsonIgnore
     private List<KTBoard> boards;
@@ -54,13 +60,29 @@ public class KTUser implements NotificationSubject {
     @JsonIgnore
     private byte[] photo;
 
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @JoinTable(name = "user_roles",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    private List<KTRole> roles;
+
     public KTUser(SignupRequest signupRequest) {
         email = signupRequest.getEmail();
         password = signupRequest.getPassword();
         fullName = signupRequest.getFullName();
     }
 
+    public void addRole(KTRole role) {
+        if (this.roles == null) {
+            this.roles = new ArrayList<>();
+            this.roles.add(role);
+        } else
+            this.roles.add(role);
+    }
+
     @Override
+    @JsonIgnore
     public String getNotificationTextRepresentation() {
         return fullName;
     }

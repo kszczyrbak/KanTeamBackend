@@ -25,18 +25,14 @@ public class KTColorMapping {
     @Enumerated(EnumType.STRING)
     @Column
     private TaskColor color;
+
     @Basic
     @Column
     @NotNull
     private String description;
+
     @JoinColumn(name = "board_id")
     @ManyToOne
     @JsonIgnore
     private KTBoard board;
-
-    @JsonGetter
-    private int getColor() {
-        return color.getValue();
-    }
-
 }

@@ -33,7 +33,7 @@ public class KTTask implements NotificationSubject {
     @Column
     private String description;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     @JoinTable(name = "task_users",
             joinColumns = {@JoinColumn(name = "task_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
@@ -62,17 +62,14 @@ public class KTTask implements NotificationSubject {
     @Column
     private TaskColor color;
 
-    @JsonGetter
-    private int getColor() {
-        if (color != null)
-            return color.getValue();
-        else
-            return -1;
-    }
-
+    @JsonIgnore
     public TaskColor getColorEnum() {
         return color;
     }
+
+//    public String getColor(){
+//        return color.toString().toLowerCase();
+//    }
 
     @Override
     @JsonIgnore

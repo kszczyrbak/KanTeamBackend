@@ -10,4 +10,4 @@ spring:
       ddl-auto: update
 
 notification:
-  url: "http://127.0.0.1:5000"
+  url: ${NOTIFICATION_URL}

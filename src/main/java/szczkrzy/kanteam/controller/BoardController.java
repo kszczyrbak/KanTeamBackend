@@ -2,11 +2,9 @@ package szczkrzy.kanteam.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import szczkrzy.kanteam.model.entities.KTBoard;
-import szczkrzy.kanteam.model.entities.KTColorMapping;
-import szczkrzy.kanteam.model.entities.KTColumn;
-import szczkrzy.kanteam.model.entities.KTTask;
+import szczkrzy.kanteam.model.entities.*;
 import szczkrzy.kanteam.model.requests.BoardCreateRequest;
 import szczkrzy.kanteam.services.BoardService;
 
@@ -40,6 +38,7 @@ public class BoardController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAll() {
         return boardService.getAll();
     }
@@ -59,6 +58,11 @@ public class BoardController {
         return boardService.removeByid(id);
     }
 
+    @DeleteMapping("/{id}/columns/{colId}")
+    public ResponseEntity deleteColumnById(@PathVariable int id, @PathVariable int colId) {
+        return boardService.removeColumnById(id, colId);
+    }
+
     @GetMapping("/{id}/columns")
     public ResponseEntity<?> getTaskColumns(@PathVariable int id) {
         return boardService.getTasksById(id);
@@ -72,6 +76,11 @@ public class BoardController {
     @PutMapping("/{id}/columns")
     public ResponseEntity updateColumns(@PathVariable int id, @RequestBody List<KTColumn> columns) {
         return boardService.updateColumns(id, columns);
+    }
+
+    @PutMapping("/{id}/users")
+    public ResponseEntity updateUsers(@PathVariable int id, @RequestBody List<KTUser> users) {
+        return boardService.updateUsers(id, users);
     }
 
     @PutMapping("/{id}/columns/{colId}/tasks")

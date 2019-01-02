@@ -25,14 +25,14 @@ public class KTTeam implements NotificationSubject {
     @Column(unique = true)
     private String name;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.REFRESH)
     @JoinTable(name = "team_users",
             joinColumns = {@JoinColumn(name = "team_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
     private List<KTUser> members;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<KTBoard> boards;
 
     @Override

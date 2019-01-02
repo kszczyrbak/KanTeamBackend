@@ -4,11 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import szczkrzy.kanteam.model.entities.KTBoard;
-import szczkrzy.kanteam.model.entities.KTNotification;
-import szczkrzy.kanteam.model.entities.KTTeam;
-import szczkrzy.kanteam.model.entities.KTUser;
+import szczkrzy.kanteam.model.entities.*;
 import szczkrzy.kanteam.model.enums.NotificationType;
 import szczkrzy.kanteam.model.requests.TeamCreateRequest;
 import szczkrzy.kanteam.repositories.TeamRepository;
@@ -24,12 +22,14 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final BoardService boardService;
 
     @Autowired
-    public TeamService(TeamRepository teamRepository, UserRepository userRepository, NotificationService notificationService) {
+    public TeamService(TeamRepository teamRepository, UserRepository userRepository, NotificationService notificationService, BoardService boardService) {
         this.teamRepository = teamRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.boardService = boardService;
     }
 
     public ResponseEntity getById(int id) {
@@ -57,11 +57,15 @@ public class TeamService {
     }
 
     public ResponseEntity removeByid(int id) {
-        try {
-            teamRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.badRequest().build();
-        }
+        String login = SecurityContextHolder.getContext().getAuthentication().getName();
+        KTUser user = userRepository.findByEmail(login);
+        KTTeam team = teamRepository.findById(id).get();
+        if (team.getMembers().contains(user))
+            try {
+                teamRepository.deleteById(id);
+            } catch (EmptyResultDataAccessException e) {
+                return ResponseEntity.badRequest().build();
+            }
 
         return ResponseEntity.ok().build();
     }
@@ -83,14 +87,9 @@ public class TeamService {
         KTUser user = userRepository.findById(userId).get();
         team.getMembers().add(user);
         KTTeam updatedTeam = teamRepository.save(team);
+        updatedTeam.getBoards().forEach(board -> boardService.addUser(board.getId(), userId));
 
-        KTNotification notification1 = notificationService.createNotificationObject(NotificationType.TEAM_USER_INVITED, user, team);
-        notification1.setRecipients(team.getMembers());
-        notificationService.send(notification1);
-
-        KTNotification notification2 = notificationService.createNotificationObject(NotificationType.USER_TEAM_INVITE, team);
-        notification2.setRecipients(Collections.singletonList(user));
-        notificationService.send(notification2);
+        sendUserInvitedNotifications(user, team);
 
         return new ResponseEntity<>(updatedTeam, HttpStatus.CREATED);
     }
@@ -100,5 +99,24 @@ public class TeamService {
         List<KTBoard> boards = team.getBoards();
 
         return ResponseEntity.ok(boards);
+    }
+
+    public ResponseEntity updateUsers(int id, List<KTUser> users) {
+        KTTeam team = teamRepository.findById(id).get();
+        List<KTUser> oldUsers = team.getMembers();
+        team.setMembers(users);
+        KTTeam updatedTeam = teamRepository.save(team);
+        List<KTUser> newUsers = new ArrayList<>(updatedTeam.getMembers());
+        newUsers.removeAll(oldUsers);
+
+        newUsers.forEach(user -> sendUserInvitedNotifications(user, updatedTeam));
+
+        return ResponseEntity.ok(updatedTeam.getMembers());
+    }
+
+
+    private void sendUserInvitedNotifications(KTUser user, KTTeam team) {
+        notificationService.send(NotificationType.TEAM_USER_INVITED, team.getMembers(), user, team);
+        notificationService.send(NotificationType.USER_TEAM_INVITE, Collections.singletonList(user), team);
     }
 }

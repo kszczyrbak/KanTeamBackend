@@ -12,12 +12,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import szczkrzy.kanteam.model.entities.KTBoard;
+import szczkrzy.kanteam.model.entities.KTRole;
 import szczkrzy.kanteam.model.entities.KTTeam;
 import szczkrzy.kanteam.model.entities.KTUser;
 import szczkrzy.kanteam.model.requests.LoginRequest;
 import szczkrzy.kanteam.model.requests.SignupRequest;
 import szczkrzy.kanteam.model.responses.AuthResponse;
 import szczkrzy.kanteam.model.security.SecurityUserModel;
+import szczkrzy.kanteam.repositories.RoleRepository;
 import szczkrzy.kanteam.repositories.UserRepository;
 import szczkrzy.kanteam.security.JwtTokenService;
 
@@ -32,22 +34,27 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService tokenService;
+    private final RoleRepository roleRepository;
 
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenService tokenService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenService tokenService, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
+        this.roleRepository = roleRepository;
     }
 
     public ResponseEntity<?> register(SignupRequest signupRequest) {
         signupRequest.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-        KTUser KTUser = new KTUser(signupRequest);
-        KTUser = userRepository.save(KTUser);
+        KTUser user = new KTUser(signupRequest);
+        KTRole userRole = roleRepository.findByName("USER");
+        user.addRole(userRole);
+        KTUser newUser = userRepository.save(user);
 
-        return new ResponseEntity<>(KTUser, HttpStatus.CREATED);
+
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     public ResponseEntity getById(int id) {
@@ -141,5 +148,9 @@ public class UserService {
         byte[] photo = user.getPhoto();
 
         return ResponseEntity.ok(photo);
+    }
+
+    public ResponseEntity<?> getUserByLogin(String email) {
+        return ResponseEntity.ok(userRepository.findByEmail(email));
     }
 }

@@ -2,10 +2,14 @@ package szczkrzy.kanteam.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import szczkrzy.kanteam.model.entities.KTTeam;
+import szczkrzy.kanteam.model.entities.KTUser;
 import szczkrzy.kanteam.model.requests.TeamCreateRequest;
 import szczkrzy.kanteam.services.TeamService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/teams")
@@ -43,11 +47,6 @@ public class TeamController {
         return teamService.update(team);
     }
 
-    @DeleteMapping
-    public ResponseEntity delete(@RequestBody KTTeam team) {
-        return teamService.remove(team);
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity deleteById(@PathVariable int id) {
         return teamService.removeByid(id);
@@ -56,5 +55,10 @@ public class TeamController {
     @GetMapping("/{id}/boards")
     public ResponseEntity<?> getBoards(@PathVariable int id) {
         return teamService.getBoardsById(id);
+    }
+
+    @PutMapping("/{id}/members")
+    public ResponseEntity updateUsers(@PathVariable int id, @RequestBody List<KTUser> users) {
+        return teamService.updateUsers(id, users);
     }
 }
