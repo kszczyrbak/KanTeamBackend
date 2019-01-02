@@ -11,3 +11,7 @@ spring:
 
 notification:
   url: ${NOTIFICATION_URL}
+
+java:
+   runtime:
+      version: 10
