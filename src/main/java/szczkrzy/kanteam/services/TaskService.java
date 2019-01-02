@@ -128,7 +128,7 @@ public class TaskService {
         return ResponseEntity.ok(TaskColor.values());
     }
 
-    public ResponseEntity updateSubtask(KTSubtask subtask) {
+    public ResponseEntity updateSubtask(int id, KTSubtask subtask) {
         KTSubtask savedTask = subtaskRepository.findById(subtask.getId()).get();
         subtask.setTask(savedTask.getTask());
         KTSubtask updatedSubtask = subtaskRepository.save(subtask);

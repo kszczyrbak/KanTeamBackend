@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import szczkrzy.kanteam.model.entities.*;
+import szczkrzy.kanteam.model.entities.KTBoard;
+import szczkrzy.kanteam.model.entities.KTTeam;
+import szczkrzy.kanteam.model.entities.KTUser;
 import szczkrzy.kanteam.model.enums.NotificationType;
 import szczkrzy.kanteam.model.requests.TeamCreateRequest;
 import szczkrzy.kanteam.repositories.TeamRepository;
@@ -103,7 +105,7 @@ public class TeamService {
 
     public ResponseEntity updateUsers(int id, List<KTUser> users) {
         KTTeam team = teamRepository.findById(id).get();
-        List<KTUser> oldUsers = team.getMembers();
+        List<KTUser> oldUsers = new ArrayList<>(team.getMembers());
         team.setMembers(users);
         KTTeam updatedTeam = teamRepository.save(team);
         List<KTUser> newUsers = new ArrayList<>(updatedTeam.getMembers());
@@ -116,7 +118,9 @@ public class TeamService {
 
 
     private void sendUserInvitedNotifications(KTUser user, KTTeam team) {
-        notificationService.send(NotificationType.TEAM_USER_INVITED, team.getMembers(), user, team);
+        List<KTUser> otherUsers = team.getMembers();
+        otherUsers.remove(user);
+        notificationService.send(NotificationType.TEAM_USER_INVITED, otherUsers, user, team);
         notificationService.send(NotificationType.USER_TEAM_INVITE, Collections.singletonList(user), team);
     }
 }

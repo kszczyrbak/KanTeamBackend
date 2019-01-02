@@ -68,7 +68,7 @@ public class BoardController {
         return boardService.getTasksById(id);
     }
 
-    @PutMapping("/{id}/columns/add")
+    @PostMapping("/{id}/columns")
     public ResponseEntity addColumn(@PathVariable int id, @RequestBody KTColumn column) {
         return boardService.addColumn(id, column);
     }
@@ -88,13 +88,13 @@ public class BoardController {
         return boardService.updateColumnTasks(colId, tasks);
     }
 
-    @PutMapping("/{id}/columns/{colId}/tasks/add")
+    @PostMapping("/{id}/columns/{colId}/tasks")
     public ResponseEntity addTask(@PathVariable int id, @PathVariable int colId, @RequestBody KTTask task) {
         return boardService.addTask(id, colId, task);
     }
 
-    @GetMapping("/{id}/members")
-    public ResponseEntity<?> getMembers(@PathVariable int id) {
+    @GetMapping("/{id}/users")
+    public ResponseEntity<?> getUsers(@PathVariable int id) {
         return boardService.getMembersById(id);
     }
 

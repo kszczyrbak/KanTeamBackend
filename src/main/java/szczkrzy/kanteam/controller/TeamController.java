@@ -2,7 +2,6 @@ package szczkrzy.kanteam.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import szczkrzy.kanteam.model.entities.KTTeam;
 import szczkrzy.kanteam.model.entities.KTUser;
@@ -32,9 +31,9 @@ public class TeamController {
         return teamService.create(request);
     }
 
-    @PutMapping("/{id}/members/add")
-    public ResponseEntity<?> addUser(@RequestBody int user, @PathVariable int id) {
-        return teamService.addUser(id, user);
+    @PutMapping("/{id}/members/add/{userId}")
+    public ResponseEntity<?> addUser(@PathVariable int id, @PathVariable int userId) {
+        return teamService.addUser(id, userId);
     }
 
     @GetMapping

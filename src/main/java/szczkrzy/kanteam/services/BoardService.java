@@ -5,12 +5,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Service;
 import szczkrzy.kanteam.model.entities.*;
 import szczkrzy.kanteam.model.enums.NotificationType;
 import szczkrzy.kanteam.model.requests.BoardCreateRequest;
-import szczkrzy.kanteam.model.security.SecurityUserModel;
 import szczkrzy.kanteam.repositories.*;
 
 import java.util.ArrayList;
@@ -186,7 +184,7 @@ public class BoardService {
     public ResponseEntity updateUsers(int id, List<KTUser> users) {
 
         KTBoard board = boardRepository.findById(id).get();
-        List<KTUser> oldUsers = board.getUsers();
+        List<KTUser> oldUsers = new ArrayList<>(board.getUsers());
         board.setUsers(users);
         KTBoard updatedBoard = boardRepository.save(board);
         List<KTUser> newUsers = new ArrayList<>(updatedBoard.getUsers());
@@ -198,7 +196,9 @@ public class BoardService {
     }
 
     private void sendUserAddedNotifications(KTUser user, KTBoard board) {
-        notificationService.send(NotificationType.BOARD_USER_INVITED, board.getUsers(), user, board);
+        List<KTUser> otherUsers = board.getUsers();
+        otherUsers.remove(user);
+        notificationService.send(NotificationType.BOARD_USER_INVITED, otherUsers, user, board);
         notificationService.send(NotificationType.USER_BOARD_INVITE, Collections.singletonList(user), board);
     }
 }

@@ -46,8 +46,8 @@ public class TaskController {
         return taskService.getColors();
     }
 
-    @PutMapping("/{id}/users/add")
-    public ResponseEntity addUser(@PathVariable int id, @RequestBody int userId) {
+    @PutMapping("/{id}/users/add/{userId}")
+    public ResponseEntity addUser(@PathVariable int id, @PathVariable int userId) {
         return taskService.addUser(id, userId);
     }
 
@@ -86,9 +86,9 @@ public class TaskController {
         return taskService.removeByid(id);
     }
 
-    @PutMapping("/subtasks")
-    public ResponseEntity updateSubtask(@RequestBody KTSubtask subtask) {
-        return taskService.updateSubtask(subtask);
+    @PutMapping("/{id}/subtasks")
+    public ResponseEntity updateSubtask(@PathVariable int id, @RequestBody KTSubtask subtask) {
+        return taskService.updateSubtask(id, subtask);
     }
 
     @PostMapping("/{id}/subtasks")
